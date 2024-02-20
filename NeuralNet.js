@@ -49,10 +49,14 @@ var LayerNN = /** @class */ (function () {
             throw new Error("count has to be an integer");
         }
         this.size = count;
+        this.layer = [];
+        this.sinnapses = new Array();
         for (var i = 0; i < count; i++)
             this.layer.unshift(new NodeNN());
         if (NextLayer) {
             this.next_layer = NextLayer;
+            for (var i = 0; i < this.Size(); i++)
+                this.sinnapses[i] = new Array();
             for (var i = 0; i < this.Size(); i++) {
                 for (var j = 0; j < this.next_layer.Size(); j++) {
                     this.sinnapses[i][j] = (Math.random() * 2) - 1;
@@ -86,7 +90,7 @@ var LayerNN = /** @class */ (function () {
     return LayerNN;
 }());
 var NeuralNet = /** @class */ (function () {
-    function NeuralNet(inputsCount, outputsCount, neuralsInLayerCount, hiddenLayersCount, inputsRound, outputsRound, neuralsRound) {
+    function NeuralNet(inputsCount, outputsCount, neuralsInLayerCount, hiddenLayersCount, inputsRound, neuralsRound, outputsRound) {
         this.InputsCount = inputsCount;
         this.OutputsCount = outputsCount;
         this.NeuralsInLayerCount = neuralsInLayerCount;
@@ -94,6 +98,7 @@ var NeuralNet = /** @class */ (function () {
         this.InputsRound = inputsRound;
         this.NeuralsRound = neuralsRound;
         this.OutputsRound = outputsRound;
+        this.HiddenLayer = new Array();
         this.Outputs = new LayerNN(this.OutputsCount, this.OutputsRound);
         for (var i = 0; i < this.HiddenLayersCount; i++) {
             if (i == 0)
@@ -123,11 +128,20 @@ var NeuralNet = /** @class */ (function () {
     };
     NeuralNet.prototype.Calc = function () {
         this.Inputs.CalcNextLayer(this.InputsRound);
-        for (var i = this.HiddenLayer.length - 1; i > 0; i--) {
+        for (var i = this.HiddenLayer.length - 1; i >= 0; i--) {
             this.HiddenLayer[i].CalcNextLayer(this.NeuralsRound);
         }
         this.Outputs.RoundValues(this.OutputsRound);
         console.log(this.Outputs);
+    };
+    NeuralNet.prototype.Result = function () {
+        this.Calc();
+        var result = new Array();
+        this.Outputs.layer.forEach(function (element) {
+            result.push(element.CurrentValue());
+        });
+        console.log(result);
+        return result;
     };
     return NeuralNet;
 }());

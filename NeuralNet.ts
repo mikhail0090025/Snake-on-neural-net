@@ -56,10 +56,13 @@ class LayerNN{
         }
 
         this.size = count;
+        this.layer = [];
+        this.sinnapses = new Array();
 
         for (let i = 0; i < count; i++) this.layer.unshift(new NodeNN());
         if(NextLayer) {
             this.next_layer = NextLayer;
+            for (let i = 0; i < this.Size(); i++) this.sinnapses[i] = new Array();
             for (let i = 0; i < this.Size(); i++) {
                 for (let j = 0; j < this.next_layer.Size(); j++) {
                     this.sinnapses[i][j] = (Math.random() * 2) - 1;
@@ -121,8 +124,8 @@ class NeuralNet {
       neuralsInLayerCount: number,
       hiddenLayersCount: number,
       inputsRound: RoundMethod,
-      outputsRound: RoundMethod,
-      neuralsRound: RoundMethod
+      neuralsRound: RoundMethod,
+      outputsRound: RoundMethod
     ) {
       this.InputsCount = inputsCount;
       this.OutputsCount = outputsCount;
@@ -131,7 +134,7 @@ class NeuralNet {
       this.InputsRound = inputsRound;
       this.NeuralsRound = neuralsRound;
       this.OutputsRound = outputsRound;
-
+      this.HiddenLayer = new Array();
       this.Outputs = new LayerNN(this.OutputsCount, this.OutputsRound);
       for (let i = 0; i < this.HiddenLayersCount; i++) {
         if(i == 0) this.HiddenLayer[i] = new LayerNN(this.NeuralsInLayerCount, this.NeuralsRound, this.Outputs);
@@ -150,11 +153,20 @@ class NeuralNet {
     }
     public Calc(): void{
         this.Inputs.CalcNextLayer(this.InputsRound);
-        for (let i = this.HiddenLayer.length - 1; i > 0; i--) {
+        for (let i = this.HiddenLayer.length - 1; i >= 0; i--) {
             this.HiddenLayer[i].CalcNextLayer(this.NeuralsRound);
         }
         this.Outputs.RoundValues(this.OutputsRound);
 
         console.log(this.Outputs);
+    }
+    public Result(): number[]{
+        this.Calc();
+        var result: number[] = new Array();
+        this.Outputs.layer.forEach(element => {
+            result.push(element.CurrentValue());
+        });
+        console.log(result);
+        return result;
     }
   }
