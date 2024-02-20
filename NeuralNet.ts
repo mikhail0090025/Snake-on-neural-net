@@ -41,26 +41,23 @@ class NodeNN{
     }
 }
 class LayerNN{
-    protected layer: NodeNN[];
+    public layer: NodeNN[];
     protected size: number;
     protected next_layer: LayerNN;
     protected sinnapses: number[][];
-    protected RoundType: RoundMethod;
 
     // Getters
     public Size(): number { return this.size; }
-    public RoundTypeG(): RoundMethod { return this.RoundType; }
 
-    constructor(count: number, roundType: RoundMethod, NextLayer: LayerNN){
+    constructor(count: number, roundType: RoundMethod, NextLayer?: LayerNN){
 
         if(!Number.isInteger(count)){
             throw new Error("count has to be an integer");
         }
 
         this.size = count;
-        this.RoundType = roundType;
 
-        for (let i = 0; i < count; i++) this.layer.push(new NodeNN());
+        for (let i = 0; i < count; i++) this.layer.unshift(new NodeNN());
         if(NextLayer) {
             this.next_layer = NextLayer;
             for (let i = 0; i < this.Size(); i++) {
@@ -75,13 +72,22 @@ class LayerNN{
             element.Reset();
         });
     }
-    public RoundValue() :void{
+    public RoundValues(RoundType: RoundMethod) :void{
         this.layer.forEach(element => {
-            element.RoundValue(this.RoundType);
+            element.RoundValue(RoundType);
         });
     }
-    public CalcNextLayer(): void{
+    public CalcNextLayer(RoundType: RoundMethod): void{
+        this.RoundValues(RoundType);
+        this.next_layer.Reset();
 
+        for (let i = 0; i < this.Size(); i++) {
+            for (let j = 0; j < this.next_layer.Size(); j++) {
+                var cur_node_next_layer = this.next_layer.layer[j];
+                var cur_node = this.layer[i];
+                cur_node_next_layer.SetValue(cur_node_next_layer.CurrentValue() + (cur_node.CurrentValue() * this.sinnapses[i][j]));
+            }
+        }
     }
 }
 class NeuralNet {
@@ -89,7 +95,14 @@ class NeuralNet {
     public OutputsCount: number;
     public NeuralsInLayerCount: number;
     public HiddenLayersCount: number;
-  
+    public InputsRound: RoundMethod;
+    public OutputsRound: RoundMethod;
+    public NeuralsRound: RoundMethod;
+    
+    protected Inputs: LayerNN;
+    protected Outputs: LayerNN;
+    protected HiddenLayer: LayerNN[];
+
     protected CheckIntegers(): void {
       if (
         Number.isInteger(this.InputsCount) &&
@@ -106,14 +119,42 @@ class NeuralNet {
       inputsCount: number,
       outputsCount: number,
       neuralsInLayerCount: number,
-      hiddenLayersCount: number
+      hiddenLayersCount: number,
+      inputsRound: RoundMethod,
+      outputsRound: RoundMethod,
+      neuralsRound: RoundMethod
     ) {
       this.InputsCount = inputsCount;
       this.OutputsCount = outputsCount;
       this.NeuralsInLayerCount = neuralsInLayerCount;
       this.HiddenLayersCount = hiddenLayersCount;
-  
+      this.InputsRound = inputsRound;
+      this.NeuralsRound = neuralsRound;
+      this.OutputsRound = outputsRound;
+
+      this.Outputs = new LayerNN(this.OutputsCount, this.OutputsRound);
+      for (let i = 0; i < this.HiddenLayersCount; i++) {
+        if(i == 0) this.HiddenLayer[i] = new LayerNN(this.NeuralsInLayerCount, this.NeuralsRound, this.Outputs);
+        else this.HiddenLayer[i] = new LayerNN(this.NeuralsInLayerCount, this.NeuralsRound, this.HiddenLayer[i - 1]);
+      }
+      this.Inputs = new LayerNN(this.InputsCount, this.InputsRound, this.HiddenLayer[this.HiddenLayersCount - 1]);
       // Check if all properties are integers
       this.CheckIntegers();
+    }
+    public GetInputs(numbers: number[]): void{
+        if(numbers.length != this.InputsCount) throw new Error("numbers count does not appropriate to count of inputs in your NN");
+
+        for (let i = 0; i < this.Inputs.layer.length; i++) {
+            this.Inputs.layer[i].SetValue(numbers[i]);
+        }
+    }
+    public Calc(): void{
+        this.Inputs.CalcNextLayer(this.InputsRound);
+        for (let i = this.HiddenLayer.length - 1; i > 0; i--) {
+            this.HiddenLayer[i].CalcNextLayer(this.NeuralsRound);
+        }
+        this.Outputs.RoundValues(this.OutputsRound);
+
+        console.log(this.Outputs);
     }
   }

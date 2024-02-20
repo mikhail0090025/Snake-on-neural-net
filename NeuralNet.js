@@ -49,9 +49,8 @@ var LayerNN = /** @class */ (function () {
             throw new Error("count has to be an integer");
         }
         this.size = count;
-        this.RoundType = roundType;
         for (var i = 0; i < count; i++)
-            this.layer.push(new NodeNN());
+            this.layer.unshift(new NodeNN());
         if (NextLayer) {
             this.next_layer = NextLayer;
             for (var i = 0; i < this.Size(); i++) {
@@ -63,28 +62,46 @@ var LayerNN = /** @class */ (function () {
     }
     // Getters
     LayerNN.prototype.Size = function () { return this.size; };
-    LayerNN.prototype.RoundTypeG = function () { return this.RoundType; };
     LayerNN.prototype.Reset = function () {
         this.layer.forEach(function (element) {
             element.Reset();
         });
     };
-    LayerNN.prototype.RoundValue = function () {
-        var _this = this;
+    LayerNN.prototype.RoundValues = function (RoundType) {
         this.layer.forEach(function (element) {
-            element.RoundValue(_this.RoundType);
+            element.RoundValue(RoundType);
         });
     };
-    LayerNN.prototype.CalcNextLayer = function () {
+    LayerNN.prototype.CalcNextLayer = function (RoundType) {
+        this.RoundValues(RoundType);
+        this.next_layer.Reset();
+        for (var i = 0; i < this.Size(); i++) {
+            for (var j = 0; j < this.next_layer.Size(); j++) {
+                var cur_node_next_layer = this.next_layer.layer[j];
+                var cur_node = this.layer[i];
+                cur_node_next_layer.SetValue(cur_node_next_layer.CurrentValue() + (cur_node.CurrentValue() * this.sinnapses[i][j]));
+            }
+        }
     };
     return LayerNN;
 }());
 var NeuralNet = /** @class */ (function () {
-    function NeuralNet(inputsCount, outputsCount, neuralsInLayerCount, hiddenLayersCount) {
+    function NeuralNet(inputsCount, outputsCount, neuralsInLayerCount, hiddenLayersCount, inputsRound, outputsRound, neuralsRound) {
         this.InputsCount = inputsCount;
         this.OutputsCount = outputsCount;
         this.NeuralsInLayerCount = neuralsInLayerCount;
         this.HiddenLayersCount = hiddenLayersCount;
+        this.InputsRound = inputsRound;
+        this.NeuralsRound = neuralsRound;
+        this.OutputsRound = outputsRound;
+        this.Outputs = new LayerNN(this.OutputsCount, this.OutputsRound);
+        for (var i = 0; i < this.HiddenLayersCount; i++) {
+            if (i == 0)
+                this.HiddenLayer[i] = new LayerNN(this.NeuralsInLayerCount, this.NeuralsRound, this.Outputs);
+            else
+                this.HiddenLayer[i] = new LayerNN(this.NeuralsInLayerCount, this.NeuralsRound, this.HiddenLayer[i - 1]);
+        }
+        this.Inputs = new LayerNN(this.InputsCount, this.InputsRound, this.HiddenLayer[this.HiddenLayersCount - 1]);
         // Check if all properties are integers
         this.CheckIntegers();
     }
@@ -96,6 +113,21 @@ var NeuralNet = /** @class */ (function () {
             return;
         }
         throw new Error("Invalid property values. All properties must be integers.");
+    };
+    NeuralNet.prototype.GetInputs = function (numbers) {
+        if (numbers.length != this.InputsCount)
+            throw new Error("numbers count does not appropriate to count of inputs in your NN");
+        for (var i = 0; i < this.Inputs.layer.length; i++) {
+            this.Inputs.layer[i].SetValue(numbers[i]);
+        }
+    };
+    NeuralNet.prototype.Calc = function () {
+        this.Inputs.CalcNextLayer(this.InputsRound);
+        for (var i = this.HiddenLayer.length - 1; i > 0; i--) {
+            this.HiddenLayer[i].CalcNextLayer(this.NeuralsRound);
+        }
+        this.Outputs.RoundValues(this.OutputsRound);
+        console.log(this.Outputs);
     };
     return NeuralNet;
 }());
