@@ -6,11 +6,15 @@
     <title>Snake on neural net</title>
     <script src="NeuralNet.js"></script>
     <link rel="stylesheet" href="style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
     <h3>Snake on neural net</h3>
-    <canvas id="game_canv" width="600px" height="600px"></canvas>
-
+    <canvas id="game_canv" width="600px" height="600px"></canvas><br><hr>
+    <button class="btn btn-primary" onclick="game.Step(0); game.Draw();">UP</button><br>
+    <button class="btn btn-primary" onclick="game.Step(3); game.Draw();">LEFT</button>
+    <button class="btn btn-primary" onclick="game.Step(1); game.Draw();">RIGHT</button><br>
+    <button class="btn btn-primary" onclick="game.Step(2); game.Draw();">DOWN</button>
     <!-- Game JS script -->
     <script src="Game.js"></script>
 
