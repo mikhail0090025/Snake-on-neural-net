@@ -86,11 +86,11 @@ var Game = /** @class */ (function () {
             cont.clearRect(0, 0, 10000, 10000);
             // Draw apple
             cont.fillStyle = "red";
-            cont.fillRect(this.Apple.X * CellSize, this.Apple.Y * CellSize, CellSize, CellSize);
+            cont.fillRect((this.Apple.X * CellSize) + 2, (this.Apple.Y * CellSize) + 2, CellSize - 4, CellSize - 4);
             // Draw snake
             this.snake.Points.forEach(function (point, index) {
                 cont.fillStyle = index == 0 ? "lightgreen" : "green";
-                cont.fillRect(point.X * CellSize, point.Y * CellSize, CellSize, CellSize);
+                cont.fillRect((point.X * CellSize) + 2, (point.Y * CellSize) + 2, CellSize - 4, CellSize - 4);
             });
         }
         else

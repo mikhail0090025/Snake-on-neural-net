@@ -83,6 +83,12 @@ class Game{
         this.snake = new Snake(point_snake);
         this.Draw();
     }
+    public IsSnake(point: Point): boolean{
+        this.snake.Points.forEach(p => {
+            if(p.X == point.X && p.Y == point.Y) return true;
+        });
+        return false;
+    }
     public Draw(): void{
         if(canv){
             // Preparation
@@ -91,12 +97,12 @@ class Game{
 
             // Draw apple
             cont.fillStyle = "red";
-            cont.fillRect(this.Apple.X * CellSize, this.Apple.Y * CellSize, CellSize, CellSize);
+            cont.fillRect((this.Apple.X * CellSize) + 2, (this.Apple.Y * CellSize) + 2, CellSize - 4, CellSize - 4);
 
             // Draw snake
             this.snake.Points.forEach((point, index) => {
                 cont.fillStyle = index == 0 ? "lightgreen" : "green";
-                cont.fillRect(point.X * CellSize, point.Y * CellSize, CellSize, CellSize);
+                cont.fillRect((point.X * CellSize) + 2, (point.Y * CellSize) + 2, CellSize - 4, CellSize - 4);
             });
         }
         else throw new Error("canvas is null");
@@ -138,6 +144,25 @@ class Game{
     public Dead() : void{
         alert("You dead");
         this.NewGame();
+    }
+    // State of the map for neural net
+    public StateForNeuralNet() : Array<number>{
+        var result: Array<number> = new Array<number>();
+        result.push(this.Apple.X);
+        result.push(this.Apple.Y);
+        result.push(this.snake.Head().X);
+        result.push(this.snake.Head().Y);
+        if(this.snake.Head().Y - 1 < 0){
+            result.push(-2);
+        }
+        else if(game.IsSnake(new Point(this.snake.Head().X, this.snake.Head().Y - 1))){
+            result.push(-1);
+        }
+        else if(new Point(this.snake.Head().X, this.snake.Head().Y - 1).Compare(this.Apple)){
+            result.push(1);
+        }
+        else result.push(0);
+        return result;
     }
 }
 var game: Game = new Game(28);
