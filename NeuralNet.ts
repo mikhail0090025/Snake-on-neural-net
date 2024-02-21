@@ -170,3 +170,51 @@ class NeuralNet {
         return result;
     }
   }
+  class Generation{
+    public Generation_: NeuralNet[];
+    public InputsCount: number;
+    public OutputsCount: number;
+    public NeuralsInLayerCount: number;
+    public HiddenLayersCount: number;
+    public InputsRound: RoundMethod;
+    public NeuralsRound: RoundMethod;
+    public OutputsRound: RoundMethod;
+    protected Size: number;
+    
+    constructor(
+        inputsCount: number,
+        outputsCount: number,
+        neuralsInLayerCount: number,
+        hiddenLayersCount: number,
+        size: number,
+        inputsRound: RoundMethod,
+        neuralsRound: RoundMethod,
+        outputsRound: RoundMethod
+    ) {
+        this.InputsCount = inputsCount;
+        this.OutputsCount = outputsCount;
+        this.NeuralsInLayerCount = neuralsInLayerCount;
+        this.HiddenLayersCount = hiddenLayersCount;
+        this.InputsRound = inputsRound;
+        this.NeuralsRound = neuralsRound;
+        this.OutputsRound = outputsRound;
+        this.Size = size;
+        this.Generation_ = new Array();
+        for (let i = 0; i < this.Size; i++) {
+            this.Generation_.push(new NeuralNet(
+                this.InputsCount,
+                this.OutputsCount,
+                this.NeuralsInLayerCount,
+                this.HiddenLayersCount,
+                this.InputsRound,
+                this.NeuralsRound,
+                this.OutputsRound
+            ));
+        }
+    }
+
+    public get size() : number {
+        return this.Size;
+    }
+    
+  }

@@ -145,3 +145,27 @@ var NeuralNet = /** @class */ (function () {
     };
     return NeuralNet;
 }());
+var Generation = /** @class */ (function () {
+    function Generation(inputsCount, outputsCount, neuralsInLayerCount, hiddenLayersCount, size, inputsRound, neuralsRound, outputsRound) {
+        this.InputsCount = inputsCount;
+        this.OutputsCount = outputsCount;
+        this.NeuralsInLayerCount = neuralsInLayerCount;
+        this.HiddenLayersCount = hiddenLayersCount;
+        this.InputsRound = inputsRound;
+        this.NeuralsRound = neuralsRound;
+        this.OutputsRound = outputsRound;
+        this.Size = size;
+        this.Generation_ = new Array();
+        for (var i = 0; i < this.Size; i++) {
+            this.Generation_.push(new NeuralNet(this.InputsCount, this.OutputsCount, this.NeuralsInLayerCount, this.HiddenLayersCount, this.InputsRound, this.NeuralsRound, this.OutputsRound));
+        }
+    }
+    Object.defineProperty(Generation.prototype, "size", {
+        get: function () {
+            return this.Size;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return Generation;
+}());

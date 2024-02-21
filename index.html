@@ -19,10 +19,12 @@
     <script src="Game.js"></script>
 
     <script>
-        var NN = new NeuralNet(6, 6, 8, 9, RoundMethod.DontRound, RoundMethod.ZeroAndOne, RoundMethod.Tanh);
-        NN.GetInputs([9, -5, 2, 1, 0, -2]);
-        NN.Calc();
-        var res = NN.Result();
+        var gen = new Generation(6, 6, 8, 9, 50, RoundMethod.DontRound, RoundMethod.ZeroAndOne, RoundMethod.Tanh);
+        console.log(gen);
+        gen.Generation_[0].GetInputs([9, 6, 0, -2, 3, 0.23]);
+        gen.Generation_[1].GetInputs([9, 6, 0, -2, 3, 0.23]);
+        alert(gen.Generation_[0].Result());
+        alert(gen.Generation_[1].Result());
     </script>
 </body>
 </html>
