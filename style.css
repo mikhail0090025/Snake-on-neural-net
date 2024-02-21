@@ -1,4 +1,8 @@
 canvas{
     border: 3px solid gray;
     background-color: black;
+    display: inline-block;
+}
+#control-block{
+    display: inline-block;
 }

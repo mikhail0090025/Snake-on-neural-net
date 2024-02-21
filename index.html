@@ -12,23 +12,51 @@
 </head>
 <body>
     <h3>Snake on neural net</h3>
-    <canvas id="game_canv" width="600px" height="600px"></canvas><br><hr>
-    <button class="btn btn-primary" onclick="game.Step(0); game.Draw();">UP</button><br>
-    <button class="btn btn-primary" onclick="game.Step(3); game.Draw();">LEFT</button>
-    <button class="btn btn-primary" onclick="game.Step(1); game.Draw();">RIGHT</button><br>
-    <button class="btn btn-primary" onclick="game.Step(2); game.Draw();">DOWN</button>
+    <canvas id="game_canv" width="600px" height="600px"></canvas>
+    <div id="control-block">
+        <button class="btn btn-primary" onclick="StepNN(0);">Neural net´s step</button>
+        <p>Gray - playing zone.<br>Black - not playing zone.</p>
+    </div>
     <!-- Game JS script -->
     <script src="Game.js"></script>
 
     <script>
-        /*
-        var gen = new Generation(6, 6, 8, 9, 50, RoundMethod.DontRound, RoundMethod.ZeroAndOne, RoundMethod.Tanh);
+        let gen_size = 50;
+        var gen = new Generation(12, 4, 30, 6, gen_size, RoundMethod.DontRound, RoundMethod.ZeroAndOne, RoundMethod.Tanh);
         console.log(gen);
-        gen.Generation_[0].GetInputs([9, 6, 0, -2, 3, 0.23]);
-        gen.Generation_[1].GetInputs([9, 6, 0, -2, 3, 0.23]);
-        alert(gen.Generation_[0].Result());
-        alert(gen.Generation_[1].Result());
-        */
+        let playing = true;
+        for (let i = 0; i < gen_size; i++) {
+            while (playing) {
+                StepNN(i);
+            }
+            playing = true;
+        }
+        alert(gen.BestNet().Score());
+        function StepNN(index) {
+            gen.Generation_[index].GetInputs(game.StateForNeuralNet());
+            let res = gen.Generation_[index].Result();
+            let step = res.indexOf(Math.max(...res));
+            let step_result = game.Step(step, true);
+            switch (step_result) {
+                case 0:
+                    gen.Generation_[index].ChangeScore(0.1);
+                    break;
+                case 1:
+                    playing = false;
+                    break;
+                case 2:
+                    gen.Generation_[index].ChangeScore(30);
+                    break;
+                default:
+                    throw new Error("Unknown step result!");
+                    break;
+            }
+        }
+        /*gen.Generation_.forEach(element => {
+            element.GetInputs(game.StateForNeuralNet());
+            let res = element.Result();
+            let step = res.indexOf(Math.max(res));
+        });*/
     </script>
 </body>
 </html>

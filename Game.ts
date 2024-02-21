@@ -65,7 +65,7 @@ class Snake{
                 this.Head().X--;
                 break;
             default:
-                throw new Error("Unknown direction");
+                throw new Error("Unknown direction: " + this.direction.toString());
         }
     }
 }
@@ -94,6 +94,8 @@ class Game{
             // Preparation
             var cont = canv.getContext("2d");
             cont.clearRect(0, 0, 10000, 10000);
+            cont.fillStyle = "#555";
+            cont.fillRect(0, 0, CellSize * this.Size, CellSize * this.Size);
 
             // Draw apple
             cont.fillStyle = "red";
@@ -123,27 +125,53 @@ class Game{
         }
         this.Apple = p;
     }
-    public Step(dir: number, redraw: boolean = true): void{
+    public Step(dir: number, redraw: boolean = true): number{
         var head = this.snake.Head();
         this.snake.direction = dir;
         this.snake.Step();
         if(head.Compare(this.Apple)){
             this.snake.NewPoint();
             this.NewApple();
+            if(redraw) this.Draw();
+            return 2;
         }
-        if(redraw) this.Draw();
 
-        if(head.X < 0 || head.Y < 0 || head.X >= this.Size || head.Y >= this.Size) this.Dead();
+        if(head.X < 0 || head.Y < 0 || head.X >= this.Size || head.Y >= this.Size){
+            this.Dead();
+            return 1;
+        }
 
         this.snake.Points.forEach((point, index) => {
             if(point.Compare(this.snake.Head()) && index != 0){
                 this.Dead();
+                return 1;
             }
         });
+        return 0;
     }
+    /*
+        0 - Just step
+        1 - Death
+        2 - Taken apple
+    */
     public Dead() : void{
         alert("You dead");
         this.NewGame();
+    }
+    protected checkCell(offsetX: number, offsetY: number): number{
+        if(this.snake.Head().X + offsetX < 0 || this.snake.Head().Y + offsetY < 0){
+            return -2;
+        }
+        else if(this.snake.Head().X + offsetX > this.Size - 1 || this.snake.Head().Y + offsetY > this.Size - 1){
+            return -2;
+        }
+        else if(game.IsSnake(new Point(this.snake.Head().X + offsetX, this.snake.Head().Y + offsetY))){
+            return -1;
+        }
+        else if(new Point(this.snake.Head().X + offsetX, this.snake.Head().Y + offsetY).Compare(this.Apple)){
+            return 1;
+        }
+        else return 0;
     }
     // State of the map for neural net
     public StateForNeuralNet() : Array<number>{
@@ -152,16 +180,14 @@ class Game{
         result.push(this.Apple.Y);
         result.push(this.snake.Head().X);
         result.push(this.snake.Head().Y);
-        if(this.snake.Head().Y - 1 < 0){
-            result.push(-2);
-        }
-        else if(game.IsSnake(new Point(this.snake.Head().X, this.snake.Head().Y - 1))){
-            result.push(-1);
-        }
-        else if(new Point(this.snake.Head().X, this.snake.Head().Y - 1).Compare(this.Apple)){
-            result.push(1);
-        }
-        else result.push(0);
+        result.push(this.checkCell(0, 1));
+        result.push(this.checkCell(0, -1));
+        result.push(this.checkCell(1, 0));
+        result.push(this.checkCell(-1, 0));
+        result.push(this.checkCell(1, 1));
+        result.push(this.checkCell(1, -1));
+        result.push(this.checkCell(-1, 1));
+        result.push(this.checkCell(-1, -1));
         return result;
     }
 }

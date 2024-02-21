@@ -63,7 +63,7 @@ var Snake = /** @class */ (function () {
                 this.Head().X--;
                 break;
             default:
-                throw new Error("Unknown direction");
+                throw new Error("Unknown direction: " + this.direction.toString());
         }
     };
     return Snake;
@@ -79,11 +79,20 @@ var Game = /** @class */ (function () {
         this.snake = new Snake(point_snake);
         this.Draw();
     };
+    Game.prototype.IsSnake = function (point) {
+        this.snake.Points.forEach(function (p) {
+            if (p.X == point.X && p.Y == point.Y)
+                return true;
+        });
+        return false;
+    };
     Game.prototype.Draw = function () {
         if (canv) {
             // Preparation
             var cont = canv.getContext("2d");
             cont.clearRect(0, 0, 10000, 10000);
+            cont.fillStyle = "#555";
+            cont.fillRect(0, 0, CellSize * this.Size, CellSize * this.Size);
             // Draw apple
             cont.fillStyle = "red";
             cont.fillRect((this.Apple.X * CellSize) + 2, (this.Apple.Y * CellSize) + 2, CellSize - 4, CellSize - 4);
@@ -123,20 +132,63 @@ var Game = /** @class */ (function () {
         if (head.Compare(this.Apple)) {
             this.snake.NewPoint();
             this.NewApple();
+            if (redraw)
+                this.Draw();
+            return 2;
         }
-        if (redraw)
-            this.Draw();
-        if (head.X < 0 || head.Y < 0 || head.X >= this.Size || head.Y >= this.Size)
+        if (head.X < 0 || head.Y < 0 || head.X >= this.Size || head.Y >= this.Size) {
             this.Dead();
+            return 1;
+        }
         this.snake.Points.forEach(function (point, index) {
             if (point.Compare(_this.snake.Head()) && index != 0) {
                 _this.Dead();
+                return 1;
             }
         });
+        return 0;
     };
+    /*
+        0 - Just step
+        1 - Death
+        2 - Taken apple
+    */
     Game.prototype.Dead = function () {
         alert("You dead");
         this.NewGame();
+    };
+    Game.prototype.checkCell = function (offsetX, offsetY) {
+        if (this.snake.Head().X + offsetX < 0 || this.snake.Head().Y + offsetY < 0) {
+            return -2;
+        }
+        else if (this.snake.Head().X + offsetX > this.Size - 1 || this.snake.Head().Y + offsetY > this.Size - 1) {
+            return -2;
+        }
+        else if (game.IsSnake(new Point(this.snake.Head().X + offsetX, this.snake.Head().Y + offsetY))) {
+            return -1;
+        }
+        else if (new Point(this.snake.Head().X + offsetX, this.snake.Head().Y + offsetY).Compare(this.Apple)) {
+            return 1;
+        }
+        else
+            return 0;
+    };
+    // State of the map for neural net
+    Game.prototype.StateForNeuralNet = function () {
+        var result = new Array();
+        result.push(this.Apple.X);
+        result.push(this.Apple.Y);
+        result.push(this.snake.Head().X);
+        result.push(this.snake.Head().Y);
+        result.push(this.checkCell(0, 1));
+        result.push(this.checkCell(0, -1));
+        result.push(this.checkCell(1, 0));
+        result.push(this.checkCell(-1, 0));
+        result.push(this.checkCell(1, 1));
+        result.push(this.checkCell(1, -1));
+        result.push(this.checkCell(-1, 1));
+        result.push(this.checkCell(-1, -1));
+        return result;
     };
     return Game;
 }());

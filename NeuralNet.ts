@@ -101,6 +101,8 @@ class NeuralNet {
     public InputsRound: RoundMethod;
     public OutputsRound: RoundMethod;
     public NeuralsRound: RoundMethod;
+
+    protected score: number;
     
     protected Inputs: LayerNN;
     protected Outputs: LayerNN;
@@ -116,6 +118,9 @@ class NeuralNet {
         return;
       }
       throw new Error("Invalid property values. All properties must be integers.");
+    }
+    public Score(): number{
+        return this.score;
     }
   
     constructor(
@@ -134,6 +139,7 @@ class NeuralNet {
       this.InputsRound = inputsRound;
       this.NeuralsRound = neuralsRound;
       this.OutputsRound = outputsRound;
+      this.score = 0;
       this.HiddenLayer = new Array();
       this.Outputs = new LayerNN(this.OutputsCount, this.OutputsRound);
       for (let i = 0; i < this.HiddenLayersCount; i++) {
@@ -150,6 +156,9 @@ class NeuralNet {
         for (let i = 0; i < this.Inputs.layer.length; i++) {
             this.Inputs.layer[i].SetValue(numbers[i]);
         }
+    }
+    public ChangeScore(change: number): void{
+        this.score += change;
     }
     public Calc(): void{
         this.Inputs.CalcNextLayer(this.InputsRound);
@@ -215,6 +224,10 @@ class NeuralNet {
 
     public get size() : number {
         return this.Size;
+    }
+
+    public BestNet() : NeuralNet{
+        return this.Generation_.reduce((max, obj) => (obj.Score() > (max?.Score() || 0) ? obj : max));
     }
     
   }
