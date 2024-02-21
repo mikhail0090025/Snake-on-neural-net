@@ -80,10 +80,14 @@ class Game{
     public snake: Snake;
     constructor(size: number){
         this.Size = size;
-        this.Apple = Point.RandomPoint(this.Size);
-        var point_snake: Point = Point.RandomPoint(this.Size);
-        while(point_snake == this.Apple) point_snake = Point.RandomPoint(this.Size);
+        this.NewGame();
+    }
+    public NewGame() : void {
+        this.NewApple();
+        var point_snake: Point = Point.RandomPoint(this.Size - 1);
+        while(point_snake == this.Apple) point_snake = Point.RandomPoint(this.Size - 1);
         this.snake = new Snake(point_snake);
+        this.Draw();
     }
     public Draw(): void{
         if(canv){
@@ -125,18 +129,30 @@ class Game{
         }
         this.Apple = p;
     }
-    public Step(dir: number, redraw: boolean): void{
+    public Step(dir: number, redraw: boolean = true): void{
+        var head = this.snake.Head();
         this.snake.direction = dir;
         this.snake.Step();
-        if(this.snake.Head().Compare(this.Apple)){
+        if(head.Compare(this.Apple)){
             this.snake.NewPoint();
             this.NewApple();
         }
         if(redraw) this.Draw();
+
+        if(head.X < 0 || head.Y < 0 || head.X >= this.Size || head.Y >= this.Size) this.Dead();
+
+        this.snake.Points.forEach((point, index) => {
+            if(point.Compare(this.snake.Head()) && index != 0){
+                this.Dead();
+            }
+        });
+    }
+    public Dead() : void{
+        alert("You dead");
+        this.NewGame();
     }
 }
 var game: Game = new Game(28);
-game.Draw();
 document.addEventListener("keydown", (event) => {
     switch (event.key) {
         case "W":

@@ -76,12 +76,16 @@ var Snake = /** @class */ (function () {
 var Game = /** @class */ (function () {
     function Game(size) {
         this.Size = size;
+        this.NewGame();
+    }
+    Game.prototype.NewGame = function () {
         this.Apple = Point.RandomPoint(this.Size);
         var point_snake = Point.RandomPoint(this.Size);
         while (point_snake == this.Apple)
             point_snake = Point.RandomPoint(this.Size);
         this.snake = new Snake(point_snake);
-    }
+        this.Draw();
+    };
     Game.prototype.Draw = function () {
         if (canv) {
             var cont = canv.getContext("2d");
@@ -120,7 +124,7 @@ var Game = /** @class */ (function () {
             throw new Error("canvas is null");
     };
     Game.prototype.NewApple = function () {
-        var p = Point.RandomPoint(this.Size);
+        var p = Point.RandomPoint(this.Size - 1);
         while (true) {
             p = Point.RandomPoint(this.Size);
             var f = false;
@@ -134,21 +138,33 @@ var Game = /** @class */ (function () {
         this.Apple = p;
     };
     Game.prototype.Step = function (dir, redraw) {
+        var _this = this;
+        if (redraw === void 0) { redraw = true; }
+        var head = this.snake.Head();
         this.snake.direction = dir;
         this.snake.Step();
-        if (this.snake.Head().Compare(this.Apple)) {
+        if (head.Compare(this.Apple)) {
             this.snake.NewPoint();
             this.NewApple();
         }
         if (redraw)
             this.Draw();
+        if (head.X < 0 || head.Y < 0 || head.X >= this.Size || head.Y >= this.Size)
+            this.Dead();
+        this.snake.Points.forEach(function (point, index) {
+            if (point.Compare(_this.snake.Head()) && index != 0) {
+                _this.Dead();
+            }
+        });
+    };
+    Game.prototype.Dead = function () {
+        alert("You dead");
+        this.NewGame();
     };
     return Game;
 }());
 var game = new Game(28);
-game.Draw();
 document.addEventListener("keydown", function (event) {
-    console.log(event);
     switch (event.key) {
         case "W":
             game.Step(0, true);
