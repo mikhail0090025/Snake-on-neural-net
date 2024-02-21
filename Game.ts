@@ -67,11 +67,6 @@ class Snake{
             default:
                 throw new Error("Unknown direction");
         }
-        if(this.Points[1]){
-            if(this.Head().Compare(this.Points[1])){
-                alert("You dead");
-            }
-        }
     }
 }
 class Game{
@@ -85,40 +80,33 @@ class Game{
     public NewGame() : void {
         this.NewApple();
         var point_snake: Point = Point.RandomPoint(this.Size - 1);
-        while(point_snake == this.Apple) point_snake = Point.RandomPoint(this.Size - 1);
         this.snake = new Snake(point_snake);
         this.Draw();
     }
     public Draw(): void{
         if(canv){
+            // Preparation
             var cont = canv.getContext("2d");
             cont.clearRect(0, 0, 10000, 10000);
-            for (let i = 0; i < this.Size; i++) {
-                for (let j = 0; j < this.Size; j++) {
-                    if(this.Apple.X == i && this.Apple.Y == j){
-                        cont.fillStyle = "red";
-                        cont.fillRect(i * CellSize, j * CellSize, CellSize, CellSize);
-                    }
-                    else {
-                        var found: boolean = false;
-                        this.snake.Points.forEach((point, index) => {
-                            if(point.X == i && point.Y == j){
-                                cont.fillStyle = index == 0 ? "lightgreen" : "green";
-                                cont.fillRect(i * CellSize, j * CellSize, CellSize, CellSize);
-                                found = true;
-                            }
-                        });
-                        if(found) continue;
-                        cont.fillStyle = "black";
-                        cont.fillRect(i * CellSize, j * CellSize, CellSize, CellSize);
-                    }
-                }
-            }
+
+            // Draw apple
+            cont.fillStyle = "red";
+            cont.fillRect(this.Apple.X * CellSize, this.Apple.Y * CellSize, CellSize, CellSize);
+
+            // Draw snake
+            this.snake.Points.forEach((point, index) => {
+                cont.fillStyle = index == 0 ? "lightgreen" : "green";
+                cont.fillRect(point.X * CellSize, point.Y * CellSize, CellSize, CellSize);
+            });
         }
         else throw new Error("canvas is null");
     }
     public NewApple(){
         var p: Point = Point.RandomPoint(this.Size - 1);
+        if(!this.snake) {
+            this.Apple = p;
+            return;
+        }
         while (true) {
             p = Point.RandomPoint(this.Size);
             var f: boolean = false;
@@ -153,6 +141,7 @@ class Game{
     }
 }
 var game: Game = new Game(28);
+game.Draw();
 document.addEventListener("keydown", (event) => {
     switch (event.key) {
         case "W":

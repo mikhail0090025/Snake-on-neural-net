@@ -65,11 +65,6 @@ var Snake = /** @class */ (function () {
             default:
                 throw new Error("Unknown direction");
         }
-        if (this.Points[1]) {
-            if (this.Head().Compare(this.Points[1])) {
-                alert("You dead");
-            }
-        }
     };
     return Snake;
 }());
@@ -79,52 +74,34 @@ var Game = /** @class */ (function () {
         this.NewGame();
     }
     Game.prototype.NewGame = function () {
-        this.Apple = Point.RandomPoint(this.Size);
-        var point_snake = Point.RandomPoint(this.Size);
-        while (point_snake == this.Apple)
-            point_snake = Point.RandomPoint(this.Size);
+        this.NewApple();
+        var point_snake = Point.RandomPoint(this.Size - 1);
         this.snake = new Snake(point_snake);
         this.Draw();
     };
     Game.prototype.Draw = function () {
         if (canv) {
+            // Preparation
             var cont = canv.getContext("2d");
             cont.clearRect(0, 0, 10000, 10000);
-            var _loop_1 = function (i) {
-                var _loop_2 = function (j) {
-                    if (this_1.Apple.X == i && this_1.Apple.Y == j) {
-                        cont.fillStyle = "red";
-                        cont.fillRect(i * CellSize, j * CellSize, CellSize, CellSize);
-                    }
-                    else {
-                        found = false;
-                        this_1.snake.Points.forEach(function (point, index) {
-                            if (point.X == i && point.Y == j) {
-                                cont.fillStyle = index == 0 ? "lightgreen" : "green";
-                                cont.fillRect(i * CellSize, j * CellSize, CellSize, CellSize);
-                                found = true;
-                            }
-                        });
-                        if (found)
-                            return "continue";
-                        cont.fillStyle = "black";
-                        cont.fillRect(i * CellSize, j * CellSize, CellSize, CellSize);
-                    }
-                };
-                for (var j = 0; j < this_1.Size; j++) {
-                    _loop_2(j);
-                }
-            };
-            var this_1 = this, found;
-            for (var i = 0; i < this.Size; i++) {
-                _loop_1(i);
-            }
+            // Draw apple
+            cont.fillStyle = "red";
+            cont.fillRect(this.Apple.X * CellSize, this.Apple.Y * CellSize, CellSize, CellSize);
+            // Draw snake
+            this.snake.Points.forEach(function (point, index) {
+                cont.fillStyle = index == 0 ? "lightgreen" : "green";
+                cont.fillRect(point.X * CellSize, point.Y * CellSize, CellSize, CellSize);
+            });
         }
         else
             throw new Error("canvas is null");
     };
     Game.prototype.NewApple = function () {
         var p = Point.RandomPoint(this.Size - 1);
+        if (!this.snake) {
+            this.Apple = p;
+            return;
+        }
         while (true) {
             p = Point.RandomPoint(this.Size);
             var f = false;
@@ -164,6 +141,7 @@ var Game = /** @class */ (function () {
     return Game;
 }());
 var game = new Game(28);
+game.Draw();
 document.addEventListener("keydown", function (event) {
     switch (event.key) {
         case "W":
