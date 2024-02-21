@@ -155,7 +155,6 @@ class Game{
         2 - Taken apple
     */
     public Dead() : void{
-        alert("You dead");
         this.NewGame();
     }
     protected checkCell(offsetX: number, offsetY: number): number{

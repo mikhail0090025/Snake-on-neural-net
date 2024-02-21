@@ -167,7 +167,6 @@ class NeuralNet {
         }
         this.Outputs.RoundValues(this.OutputsRound);
 
-        console.log(this.Outputs);
     }
     public Result(): number[]{
         this.Calc();
@@ -175,7 +174,6 @@ class NeuralNet {
         this.Outputs.layer.forEach(element => {
             result.push(element.CurrentValue());
         });
-        console.log(result);
         return result;
     }
   }

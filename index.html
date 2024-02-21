@@ -25,9 +25,17 @@
         var gen = new Generation(12, 4, 30, 6, gen_size, RoundMethod.DontRound, RoundMethod.ZeroAndOne, RoundMethod.Tanh);
         console.log(gen);
         let playing = true;
+        let steps = 0;
         for (let i = 0; i < gen_size; i++) {
+            steps = 0;
             while (playing) {
                 StepNN(i);
+                steps++;
+                if(steps > 10000){
+                    gen.Generation_[i].ChangeScore(-100);
+                    console.log("Player " + i + " got into cycle(((");
+                    break;
+                }
             }
             playing = true;
         }
@@ -42,6 +50,7 @@
                     gen.Generation_[index].ChangeScore(0.1);
                     break;
                 case 1:
+                    console.log(index + " played, and has score " + gen.Generation_[index].Score());
                     playing = false;
                     break;
                 case 2:

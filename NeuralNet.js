@@ -98,6 +98,7 @@ var NeuralNet = /** @class */ (function () {
         this.InputsRound = inputsRound;
         this.NeuralsRound = neuralsRound;
         this.OutputsRound = outputsRound;
+        this.score = 0;
         this.HiddenLayer = new Array();
         this.Outputs = new LayerNN(this.OutputsCount, this.OutputsRound);
         for (var i = 0; i < this.HiddenLayersCount; i++) {
@@ -119,6 +120,9 @@ var NeuralNet = /** @class */ (function () {
         }
         throw new Error("Invalid property values. All properties must be integers.");
     };
+    NeuralNet.prototype.Score = function () {
+        return this.score;
+    };
     NeuralNet.prototype.GetInputs = function (numbers) {
         if (numbers.length != this.InputsCount)
             throw new Error("numbers count does not appropriate to count of inputs in your NN");
@@ -126,13 +130,15 @@ var NeuralNet = /** @class */ (function () {
             this.Inputs.layer[i].SetValue(numbers[i]);
         }
     };
+    NeuralNet.prototype.ChangeScore = function (change) {
+        this.score += change;
+    };
     NeuralNet.prototype.Calc = function () {
         this.Inputs.CalcNextLayer(this.InputsRound);
         for (var i = this.HiddenLayer.length - 1; i >= 0; i--) {
             this.HiddenLayer[i].CalcNextLayer(this.NeuralsRound);
         }
         this.Outputs.RoundValues(this.OutputsRound);
-        console.log(this.Outputs);
     };
     NeuralNet.prototype.Result = function () {
         this.Calc();
@@ -140,7 +146,6 @@ var NeuralNet = /** @class */ (function () {
         this.Outputs.layer.forEach(function (element) {
             result.push(element.CurrentValue());
         });
-        console.log(result);
         return result;
     };
     return NeuralNet;
@@ -167,5 +172,8 @@ var Generation = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
+    Generation.prototype.BestNet = function () {
+        return this.Generation_.reduce(function (max, obj) { return (obj.Score() > ((max === null || max === void 0 ? void 0 : max.Score()) || 0) ? obj : max); });
+    };
     return Generation;
 }());

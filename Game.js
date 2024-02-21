@@ -154,7 +154,6 @@ var Game = /** @class */ (function () {
         2 - Taken apple
     */
     Game.prototype.Dead = function () {
-        alert("You dead");
         this.NewGame();
     };
     Game.prototype.checkCell = function (offsetX, offsetY) {
