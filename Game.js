@@ -138,14 +138,20 @@ var Game = /** @class */ (function () {
         }
         if (head.X < 0 || head.Y < 0 || head.X >= this.Size || head.Y >= this.Size) {
             this.Dead();
+            if (redraw)
+                this.Draw();
             return 1;
         }
         this.snake.Points.forEach(function (point, index) {
             if (point.Compare(_this.snake.Head()) && index != 0) {
                 _this.Dead();
+                if (redraw)
+                    _this.Draw();
                 return 1;
             }
         });
+        if (redraw)
+            this.Draw();
         return 0;
     };
     /*
@@ -188,6 +194,9 @@ var Game = /** @class */ (function () {
         result.push(this.checkCell(-1, 1));
         result.push(this.checkCell(-1, -1));
         return result;
+    };
+    Game.prototype.Score = function () {
+        return this.snake.Points.length - 1;
     };
     return Game;
 }());

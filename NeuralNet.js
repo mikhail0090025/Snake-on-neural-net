@@ -76,6 +76,13 @@ var LayerNN = /** @class */ (function () {
             element.RoundValue(RoundType);
         });
     };
+    LayerNN.prototype.OffsetSinnapses = function (factor) {
+        for (var i = 0; i < this.Size(); i++) {
+            for (var j = 0; j < this.next_layer.Size(); j++) {
+                this.sinnapses[i][j] += ((Math.random() * 2) - 1) * factor;
+            }
+        }
+    };
     LayerNN.prototype.CalcNextLayer = function (RoundType) {
         this.RoundValues(RoundType);
         this.next_layer.Reset();
@@ -148,6 +155,13 @@ var NeuralNet = /** @class */ (function () {
         });
         return result;
     };
+    NeuralNet.NeuralNetByTemplate = function (template, changeFactor) {
+        if (!changeFactor)
+            changeFactor = 0.001;
+        var nn = new NeuralNet(template.InputsCount, template.OutputsCount, template.NeuralsInLayerCount, template.HiddenLayersCount, template.InputsRound, template.NeuralsRound, template.OutputsRound);
+        nn.Inputs.sinnapses.forEach(function (element) {
+        });
+    };
     return NeuralNet;
 }());
 var Generation = /** @class */ (function () {
@@ -160,6 +174,7 @@ var Generation = /** @class */ (function () {
         this.NeuralsRound = neuralsRound;
         this.OutputsRound = outputsRound;
         this.Size = size;
+        this.SensivityLearning = 0.001;
         this.Generation_ = new Array();
         for (var i = 0; i < this.Size; i++) {
             this.Generation_.push(new NeuralNet(this.InputsCount, this.OutputsCount, this.NeuralsInLayerCount, this.HiddenLayersCount, this.InputsRound, this.NeuralsRound, this.OutputsRound));

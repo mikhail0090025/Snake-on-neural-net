@@ -240,7 +240,7 @@ class NeuralNet {
     public get size() : number {
         return this.Size;
     }
-
+    
     public BestNet() : NeuralNet{
         return this.Generation_.reduce((max, obj) => (obj.Score() > (max?.Score() || 0) ? obj : max));
     }

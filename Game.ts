@@ -138,15 +138,18 @@ class Game{
 
         if(head.X < 0 || head.Y < 0 || head.X >= this.Size || head.Y >= this.Size){
             this.Dead();
+            if(redraw) this.Draw();
             return 1;
         }
 
         this.snake.Points.forEach((point, index) => {
             if(point.Compare(this.snake.Head()) && index != 0){
                 this.Dead();
+                if(redraw) this.Draw();
                 return 1;
             }
         });
+        if(redraw) this.Draw();
         return 0;
     }
     /*
@@ -188,6 +191,9 @@ class Game{
         result.push(this.checkCell(-1, 1));
         result.push(this.checkCell(-1, -1));
         return result;
+    }
+    public Score() : number{
+        return this.snake.Points.length - 1;
     }
 }
 var game: Game = new Game(28);
