@@ -44,7 +44,7 @@ class LayerNN{
     public layer: NodeNN[];
     protected size: number;
     protected next_layer: LayerNN;
-    protected sinnapses: number[][];
+    public sinnapses: number[][];
 
     // Getters
     public Size(): number { return this.size; }
@@ -79,6 +79,13 @@ class LayerNN{
         this.layer.forEach(element => {
             element.RoundValue(RoundType);
         });
+    }
+    public OffsetSinnapses(factor: number){
+        for (let i = 0; i < this.Size(); i++) {
+            for (let j = 0; j < this.next_layer.Size(); j++) {
+                this.sinnapses[i][j] += ((Math.random() * 2) - 1) * factor;
+            }
+        }
     }
     public CalcNextLayer(RoundType: RoundMethod): void{
         this.RoundValues(RoundType);
@@ -176,6 +183,14 @@ class NeuralNet {
         });
         return result;
     }
+
+    public static NeuralNetByTemplate(template: NeuralNet, changeFactor?: number){
+        if(!changeFactor) changeFactor = 0.001;
+        let nn = new NeuralNet(template.InputsCount, template.OutputsCount, template.NeuralsInLayerCount, template.HiddenLayersCount, template.InputsRound, template.NeuralsRound, template.OutputsRound);
+        nn.Inputs.sinnapses.forEach(element => {
+
+        });
+    }
   }
   class Generation{
     public Generation_: NeuralNet[];
@@ -187,6 +202,7 @@ class NeuralNet {
     public NeuralsRound: RoundMethod;
     public OutputsRound: RoundMethod;
     protected Size: number;
+    public SensivityLearning: number;
     
     constructor(
         inputsCount: number,
@@ -206,6 +222,7 @@ class NeuralNet {
         this.NeuralsRound = neuralsRound;
         this.OutputsRound = outputsRound;
         this.Size = size;
+        this.SensivityLearning = 0.001;
         this.Generation_ = new Array();
         for (let i = 0; i < this.Size; i++) {
             this.Generation_.push(new NeuralNet(
