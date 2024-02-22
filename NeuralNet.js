@@ -104,6 +104,11 @@ var LayerNN = /** @class */ (function () {
             }
         }
     };
+    LayerNN.prototype.OffsetSinnapses = function (factor) {
+        this.sinnapses.forEach(function (row) {
+            row.map(function (num) { num += ((Math.random() * 2) - 1) * factor; });
+        });
+    };
     return LayerNN;
 }());
 var NeuralNet = /** @class */ (function () {
@@ -164,6 +169,10 @@ var NeuralNet = /** @class */ (function () {
     NeuralNet.prototype.ChangeScore = function (change) {
         this.score += change;
     };
+    NeuralNet.prototype.OffsetSinnapses = function (factor) {
+        this.Inputs.OffsetSinnapses(factor);
+        this.HiddenLayer.forEach(function (l) { return l.OffsetSinnapses(factor); });
+    };
     NeuralNet.prototype.Calc = function () {
         this.Inputs.CalcNextLayer(this.InputsRound);
         for (var i = this.HiddenLayer.length - 1; i >= 0; i--) {
@@ -206,6 +215,15 @@ var Generation = /** @class */ (function () {
     });
     Generation.prototype.BestNet = function () {
         return this.Generation_.reduce(function (max, obj) { return (obj.Score() > ((max === null || max === void 0 ? void 0 : max.Score()) || 0) ? obj : max); });
+    };
+    Generation.prototype.SetByBestNet = function () {
+        var _this = this;
+        var BestNet_ = this.BestNet();
+        this.Generation_.forEach(function (net, index) {
+            net = BestNet_.Clone();
+            net.OffsetSinnapses(_this.SensivityLearning);
+        });
+        console.log("Next generation is ready");
     };
     return Generation;
 }());

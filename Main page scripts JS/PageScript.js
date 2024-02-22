@@ -1,5 +1,5 @@
 const MaxStepsForGameAI = 500;
-const gen_size = 50;
+const gen_size = 20;
 let generations_passed = 0;
 let gen = new Generation(12, 4, 30, 6, gen_size, RoundMethod.DontRound, RoundMethod.ZeroAndOne, RoundMethod.Tanh);
 gen.Generation_[0].Clone();
@@ -19,6 +19,7 @@ function PassOneGeneration() {
             }
         }
     }
+    gen.SetByBestNet();
     generations_passed++;
 }
         function StepNN(index) {

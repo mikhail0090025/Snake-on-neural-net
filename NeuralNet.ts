@@ -113,6 +113,11 @@ class LayerNN implements ICloneable{
             }
         }
     }
+    public OffsetSinnapses(factor: number): void{
+        this.sinnapses.forEach((row) => {
+            row.map((num) => {num += ((Math.random() * 2) - 1) * factor;});
+        });
+    }
 }
 class NeuralNet implements ICloneable {
     public readonly InputsCount: number;
@@ -193,6 +198,10 @@ class NeuralNet implements ICloneable {
     public ChangeScore(change: number): void{
         this.score += change;
     }
+    public OffsetSinnapses(factor:number):void{
+        this.Inputs.OffsetSinnapses(factor);
+        this.HiddenLayer.forEach((l) => l.OffsetSinnapses(factor));
+    }
     public Calc(): void{
         this.Inputs.CalcNextLayer(this.InputsRound);
         for (let i = this.HiddenLayer.length - 1; i >= 0; i--) {
@@ -262,5 +271,12 @@ class NeuralNet implements ICloneable {
     public BestNet() : NeuralNet{
         return this.Generation_.reduce((max, obj) => (obj.Score() > (max?.Score() || 0) ? obj : max));
     }
-    
+    public SetByBestNet(): void{
+        var BestNet_: NeuralNet = this.BestNet();
+        this.Generation_.forEach((net, index) =>{
+            net = BestNet_.Clone();
+            net.OffsetSinnapses(this.SensivityLearning);
+        });
+        console.log("Next generation is ready");
+    }
   }
