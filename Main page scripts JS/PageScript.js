@@ -1,26 +1,26 @@
 const MaxStepsForGameAI = 500;
-        const gen_size = 50;
-        let generations_passed = 0;
-        let gen = new Generation(12, 4, 30, 6, gen_size, RoundMethod.DontRound, RoundMethod.ZeroAndOne, RoundMethod.Tanh);
-        console.log(gen);
-        let playing = true;
-        function PassOneGeneration() {
-            let steps = 0;
-            for (let i = 0; i < gen_size; i++) {
-                steps = 0;
-                playing = true;
-                while (playing) {
-                    StepNN(i);
-                    steps++;
-                    if(steps > MaxStepsForGameAI){
-                        gen.Generation_[i].ChangeScore(-100);
-                        console.log("Player " + i + " got into cycle or made too many steps");
-                        break;
-                    }
-                }
+const gen_size = 50;
+let generations_passed = 0;
+let gen = new Generation(12, 4, 30, 6, gen_size, RoundMethod.DontRound, RoundMethod.ZeroAndOne, RoundMethod.Tanh);
+gen.Generation_[0].Clone();
+let playing = true;
+function PassOneGeneration() {
+    let steps = 0;
+    for (let i = 0; i < gen_size; i++) {
+        steps = 0;
+        playing = true;
+        while (playing) {
+            StepNN(i);
+            steps++;
+            if(steps > MaxStepsForGameAI){
+                gen.Generation_[i].ChangeScore(-100);
+                console.log("Player " + i + " got into cycle or made too many steps");
+                break;
             }
-            generations_passed++;
         }
+    }
+    generations_passed++;
+}
         function StepNN(index) {
             gen.Generation_[index].GetInputs(game.StateForNeuralNet());
             let res = gen.Generation_[index].Result();
@@ -39,6 +39,5 @@ const MaxStepsForGameAI = 500;
                     break;
                 default:
                     throw new Error("Unknown step result!");
-                    break;
             }
         }

@@ -3,7 +3,10 @@ enum RoundMethod {
     Tanh = 1,
     ZeroAndOne = 2
 }
-class NodeNN{
+interface ICloneable{
+    Clone(): ICloneable;
+}
+class NodeNN implements ICloneable{
     protected value: number;
     protected Is_rounded: boolean;
     // Getter for value
@@ -39,17 +42,23 @@ class NodeNN{
         this.value = 0;
         this.Is_rounded = false;
     }
+    Clone(): NodeNN {
+        var result = new NodeNN();
+        result.Is_rounded = this.Is_rounded;
+        result.value = this.value;
+        return result;
+    }
 }
-class LayerNN{
+class LayerNN implements ICloneable{
     public layer: NodeNN[];
     protected size: number;
-    protected next_layer: LayerNN;
+    public next_layer: LayerNN;
     public sinnapses: number[][];
 
     // Getters
     public Size(): number { return this.size; }
-
-    constructor(count: number, roundType: RoundMethod, NextLayer?: LayerNN){
+    
+    constructor(count: number, NextLayer?: LayerNN){
 
         if(!Number.isInteger(count)){
             throw new Error("count has to be an integer");
@@ -70,6 +79,18 @@ class LayerNN{
             }
         }
     }
+    Clone(): LayerNN {
+        var result = new LayerNN(this.size);
+        result.sinnapses = new Array();
+        for (let i = 0; i < this.sinnapses.length; i++) {
+            result.sinnapses.push(new Array());
+            for (let j = 0; j < this.sinnapses[i].length; j++) {
+                result.sinnapses[i].push(this.sinnapses[i][j]);
+            }
+        }
+
+        return result;
+    }
     public Reset() :void{
         this.layer.forEach(element => {
             element.Reset();
@@ -79,13 +100,6 @@ class LayerNN{
         this.layer.forEach(element => {
             element.RoundValue(RoundType);
         });
-    }
-    public OffsetSinnapses(factor: number){
-        for (let i = 0; i < this.Size(); i++) {
-            for (let j = 0; j < this.next_layer.Size(); j++) {
-                this.sinnapses[i][j] += ((Math.random() * 2) - 1) * factor;
-            }
-        }
     }
     public CalcNextLayer(RoundType: RoundMethod): void{
         this.RoundValues(RoundType);
@@ -100,7 +114,7 @@ class LayerNN{
         }
     }
 }
-class NeuralNet {
+class NeuralNet implements ICloneable {
     public InputsCount: number;
     public OutputsCount: number;
     public NeuralsInLayerCount: number;
@@ -148,14 +162,26 @@ class NeuralNet {
       this.OutputsRound = outputsRound;
       this.score = 0;
       this.HiddenLayer = new Array();
-      this.Outputs = new LayerNN(this.OutputsCount, this.OutputsRound);
+      this.Outputs = new LayerNN(this.OutputsCount);
       for (let i = 0; i < this.HiddenLayersCount; i++) {
-        if(i == 0) this.HiddenLayer[i] = new LayerNN(this.NeuralsInLayerCount, this.NeuralsRound, this.Outputs);
-        else this.HiddenLayer[i] = new LayerNN(this.NeuralsInLayerCount, this.NeuralsRound, this.HiddenLayer[i - 1]);
+        if(i == 0) this.HiddenLayer[i] = new LayerNN(this.NeuralsInLayerCount, this.Outputs);
+        else this.HiddenLayer[i] = new LayerNN(this.NeuralsInLayerCount, this.HiddenLayer[i - 1]);
       }
-      this.Inputs = new LayerNN(this.InputsCount, this.InputsRound, this.HiddenLayer[this.HiddenLayersCount - 1]);
+      this.Inputs = new LayerNN(this.InputsCount, this.HiddenLayer[this.HiddenLayersCount - 1]);
       // Check if all properties are integers
       this.CheckIntegers();
+    }
+    Clone(): NeuralNet {
+        var result = new NeuralNet(this.InputsCount, this.OutputsCount, this.NeuralsInLayerCount, this.HiddenLayersCount, this.InputsRound, this.NeuralsRound, this.OutputsRound);
+        result.Outputs = this.Outputs.Clone();
+        for (let i = this.HiddenLayer.length - 1; i > 0; i--) {
+            result.HiddenLayer[i] = this.HiddenLayer[i].Clone();
+            if(i == this.HiddenLayer.length - 1) result.HiddenLayer[i].next_layer = result.Outputs;
+            else result.HiddenLayer[i].next_layer = result.HiddenLayer[i - 1].next_layer;
+            result.Inputs.next_layer = result.HiddenLayer[0];
+        }
+        result.Inputs = this.Inputs.Clone();
+        return result;
     }
     public GetInputs(numbers: number[]): void{
         if(numbers.length != this.InputsCount) throw new Error("numbers count does not appropriate to count of inputs in your NN");
@@ -182,14 +208,6 @@ class NeuralNet {
             result.push(element.CurrentValue());
         });
         return result;
-    }
-
-    public static NeuralNetByTemplate(template: NeuralNet, changeFactor?: number){
-        if(!changeFactor) changeFactor = 0.001;
-        let nn = new NeuralNet(template.InputsCount, template.OutputsCount, template.NeuralsInLayerCount, template.HiddenLayersCount, template.InputsRound, template.NeuralsRound, template.OutputsRound);
-        nn.Inputs.sinnapses.forEach(element => {
-
-        });
     }
   }
   class Generation{
