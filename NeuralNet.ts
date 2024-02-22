@@ -186,6 +186,7 @@ class NeuralNet implements ICloneable {
             result.Inputs.next_layer = result.HiddenLayer[0];
         }
         result.Inputs = this.Inputs.Clone();
+        result.score = 0;
         return result;
     }
     public GetInputs(numbers: number[]): void{
@@ -241,6 +242,7 @@ class NeuralNet implements ICloneable {
         neuralsRound: RoundMethod,
         outputsRound: RoundMethod
     ) {
+        console.log("Creating generation...");
         this.InputsCount = inputsCount;
         this.OutputsCount = outputsCount;
         this.NeuralsInLayerCount = neuralsInLayerCount;
@@ -262,6 +264,7 @@ class NeuralNet implements ICloneable {
                 this.OutputsRound
             ));
         }
+        console.log("Generation is created!");
     }
 
     public get size() : number {
@@ -271,11 +274,18 @@ class NeuralNet implements ICloneable {
     public BestNet() : NeuralNet{
         return this.Generation_.reduce((max, obj) => (obj.Score() > (max?.Score() || 0) ? obj : max));
     }
+    public BestNetIndex() : number{
+        return this.Generation_.indexOf(this.BestNet());
+    }
+    public BestScore(): number{
+        if(this.BestNet()) return this.BestNet().Score();
+        else return 0;
+    }
     public SetByBestNet(): void{
         var BestNet_: NeuralNet = this.BestNet();
         this.Generation_.forEach((net, index) =>{
             net = BestNet_.Clone();
-            net.OffsetSinnapses(this.SensivityLearning);
+            if(index != 0) net.OffsetSinnapses(this.SensivityLearning);
         });
         console.log("Next generation is ready");
     }

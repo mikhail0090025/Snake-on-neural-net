@@ -192,6 +192,7 @@ var NeuralNet = /** @class */ (function () {
 }());
 var Generation = /** @class */ (function () {
     function Generation(inputsCount, outputsCount, neuralsInLayerCount, hiddenLayersCount, size, inputsRound, neuralsRound, outputsRound) {
+        console.log("Creating generation...");
         this.InputsCount = inputsCount;
         this.OutputsCount = outputsCount;
         this.NeuralsInLayerCount = neuralsInLayerCount;
@@ -205,6 +206,7 @@ var Generation = /** @class */ (function () {
         for (var i = 0; i < this.Size; i++) {
             this.Generation_.push(new NeuralNet(this.InputsCount, this.OutputsCount, this.NeuralsInLayerCount, this.HiddenLayersCount, this.InputsRound, this.NeuralsRound, this.OutputsRound));
         }
+        console.log("Generation is created!");
     }
     Object.defineProperty(Generation.prototype, "size", {
         get: function () {
@@ -216,12 +218,22 @@ var Generation = /** @class */ (function () {
     Generation.prototype.BestNet = function () {
         return this.Generation_.reduce(function (max, obj) { return (obj.Score() > ((max === null || max === void 0 ? void 0 : max.Score()) || 0) ? obj : max); });
     };
+    Generation.prototype.BestNetIndex = function () {
+        return this.Generation_.indexOf(this.BestNet());
+    };
+    Generation.prototype.BestScore = function () {
+        if (this.BestNet())
+            return this.BestNet().Score();
+        else
+            return 0;
+    };
     Generation.prototype.SetByBestNet = function () {
         var _this = this;
         var BestNet_ = this.BestNet();
         this.Generation_.forEach(function (net, index) {
             net = BestNet_.Clone();
-            net.OffsetSinnapses(_this.SensivityLearning);
+            if (index != 0)
+                net.OffsetSinnapses(_this.SensivityLearning);
         });
         console.log("Next generation is ready");
     };
