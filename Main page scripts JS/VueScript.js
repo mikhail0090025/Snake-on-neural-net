@@ -12,6 +12,9 @@ new Vue({
         }
     },
     methods: {
-        
+        update: function(){
+            this.generation = gen;
+            this.GenerationsPassed = generations_passed;
+        }
     }
 });

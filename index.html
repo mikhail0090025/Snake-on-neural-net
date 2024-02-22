@@ -16,6 +16,7 @@
     <!-- REACT.JS -->
     <script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.26.0/babel.min.js"></script>
 </head>
 <body>
     <h3>Snake on neural net</h3>
@@ -31,6 +32,7 @@
         <button class="btn btn-primary" onclick="StepNN(0);">Neural net´s step</button>&nbsp;
         <button class="btn btn-primary" onclick="PassOneGeneration();">Pass one generation</button>
         <p>Gray - playing zone.<br>Black - not playing zone.</p>
+        <div id="root_for_nn_view" class="container-fluid"></div>
     </div>
     <!-- Game JS script -->
     <script src="Game.js"></script>
@@ -38,6 +40,6 @@
     <!-- Other page scripts -->
     <script src="Main page scripts JS/PageScript.js"></script>
     <script src="Main page scripts JS/VueScript.js"></script>
-    <script src="Main page scripts JS/ReactScript.js"></script>
+    <script src="Main page scripts JS/ReactScript.js" type="text/babel"></script>
 </body>
 </html>

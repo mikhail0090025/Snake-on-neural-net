@@ -115,10 +115,10 @@ class LayerNN implements ICloneable{
     }
 }
 class NeuralNet implements ICloneable {
-    public InputsCount: number;
-    public OutputsCount: number;
-    public NeuralsInLayerCount: number;
-    public HiddenLayersCount: number;
+    public readonly InputsCount: number;
+    public readonly OutputsCount: number;
+    public readonly NeuralsInLayerCount: number;
+    public readonly HiddenLayersCount: number;
     public InputsRound: RoundMethod;
     public OutputsRound: RoundMethod;
     public NeuralsRound: RoundMethod;
