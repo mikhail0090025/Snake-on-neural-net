@@ -283,10 +283,11 @@ class NeuralNet implements ICloneable {
     }
     public SetByBestNet(): void{
         var BestNet_: NeuralNet = this.BestNet();
-        this.Generation_.forEach((net, index) =>{
-            net = BestNet_.Clone();
-            if(index != 0) net.OffsetSinnapses(this.SensivityLearning);
-        });
+        for (let i = 0; i < this.Generation_.length; i++) {
+            this.Generation_[i] = BestNet_.Clone();
+            if(i != 0) this.Generation_[i].OffsetSinnapses(this.SensivityLearning);
+            this.Generation_[i].ChangeScore(-this.Generation_[i].Score());
+        }
         console.log("Next generation is ready");
     }
   }

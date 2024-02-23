@@ -17,6 +17,8 @@ var Snake = /** @class */ (function () {
     function Snake(StartPoint) {
         this.direction = 0;
         this.Points = new Array(StartPoint);
+        for (var i = 0; i < 3; i++)
+            this.NewPoint();
     }
     Snake.prototype.Head = function () {
         return this.Points[0];
@@ -112,7 +114,7 @@ var Game = /** @class */ (function () {
             return;
         }
         while (true) {
-            p = Point.RandomPoint(this.Size);
+            p = Point.RandomPoint(this.Size - 1);
             var f = false;
             this.snake.Points.forEach(function (element) {
                 if (element.Compare(p))

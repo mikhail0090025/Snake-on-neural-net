@@ -19,6 +19,7 @@ class Snake{
     public direction: number = 0;
     constructor(StartPoint: Point){
         this.Points = new Array(StartPoint);
+        for (let i = 0; i < 3; i++) this.NewPoint();
     }
     public Head() : Point{
         return this.Points[0];
@@ -116,7 +117,7 @@ class Game{
             return;
         }
         while (true) {
-            p = Point.RandomPoint(this.Size);
+            p = Point.RandomPoint(this.Size - 1);
             var f: boolean = false;
             this.snake.Points.forEach(element => {
                 if(element.Compare(p)) f=true;

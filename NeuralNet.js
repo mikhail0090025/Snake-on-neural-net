@@ -157,6 +157,7 @@ var NeuralNet = /** @class */ (function () {
             result.Inputs.next_layer = result.HiddenLayer[0];
         }
         result.Inputs = this.Inputs.Clone();
+        result.score = 0;
         return result;
     };
     NeuralNet.prototype.GetInputs = function (numbers) {
@@ -228,13 +229,13 @@ var Generation = /** @class */ (function () {
             return 0;
     };
     Generation.prototype.SetByBestNet = function () {
-        var _this = this;
         var BestNet_ = this.BestNet();
-        this.Generation_.forEach(function (net, index) {
-            net = BestNet_.Clone();
-            if (index != 0)
-                net.OffsetSinnapses(_this.SensivityLearning);
-        });
+        for (var i = 0; i < this.Generation_.length; i++) {
+            this.Generation_[i] = BestNet_.Clone();
+            if (i != 0)
+                this.Generation_[i].OffsetSinnapses(this.SensivityLearning);
+            this.Generation_[i].ChangeScore(-this.Generation_[i].Score());
+        }
         console.log("Next generation is ready");
     };
     return Generation;

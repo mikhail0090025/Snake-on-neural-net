@@ -1,7 +1,8 @@
-const MaxStepsForGameAI = 100;
-const gen_size = 20;
+const MaxStepsForGameAI = 1000;
+const gen_size = 100;
 let generations_passed = 0;
 let gen = new Generation(12, 4, 30, 6, gen_size, RoundMethod.DontRound, RoundMethod.ZeroAndOne, RoundMethod.Tanh);
+alert(gen.Generation_);
 let playing = true;
 let FoundApple = false;
 function PassOneGeneration() {
@@ -24,6 +25,14 @@ function PassOneGeneration() {
         }
     }
     gen.SetByBestNet();
+    try {
+        for (let i = 0; i < gen_size; i++) {
+            gen.Generation_[i].ChangeScore(-Generation_[i].Score());
+        }
+    } catch (error) {
+        alert(error);
+    }
+    
     generations_passed++;
 }
 function StepNN(index) {
